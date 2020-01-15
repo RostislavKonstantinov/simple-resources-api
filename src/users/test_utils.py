@@ -47,3 +47,6 @@ class UserClientMixin:
         token = response.json()['access']
         client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         return client
+
+    def random_user(self) -> User:
+        return self.create_user(random_email(), random_string())
