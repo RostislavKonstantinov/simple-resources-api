@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.db.models import QuerySet
 from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -30,6 +31,9 @@ class ResourcesViewSet(
 
     def get_queryset(self) -> QuerySet:
         qs = super().get_queryset()
+
+        if isinstance(self.request.user, AnonymousUser):
+            return qs.none()
 
         if not self.request.user.is_staff:
             return qs.filter(user=self.request.user)
