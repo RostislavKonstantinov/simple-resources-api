@@ -17,6 +17,7 @@ from django.conf.urls import url
 from django.urls import include
 
 from users.urls import register_urlpatterns, auth_urlpatterns, users_urlpatterns
+from resources.urls import user_quota_urlpatterns, resources_urlpatterns
 from .schema import schema_view
 
 urlpatterns = [
@@ -26,4 +27,6 @@ urlpatterns = [
     url(r'^api/v1/register', include(register_urlpatterns)),
     url(r'^api/v1/login', include(auth_urlpatterns)),
     url(r'^api/v1/users', include(users_urlpatterns)),
+    url(r'^api/v1/quotas', include(user_quota_urlpatterns)),
+    url(r'^api/v1/resources', include(resources_urlpatterns)),
 ]
