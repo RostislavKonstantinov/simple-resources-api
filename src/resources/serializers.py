@@ -46,9 +46,14 @@ class ResourceSerializer(serializers.ModelSerializer):
         model = Resource
         fields = ('id', 'user_id', 'name')
 
+    def validate_user_id(self, user: User) -> User:
+        if self.request_user.is_staff:
+            return user
+        return self.request_user
+
     @transaction.atomic()
     def create(self, validated_data: Dict[str, Any]) -> Resource:
-        user = validated_data['user'] if self.request_user.is_staff else self.request_user
+        user = validated_data['user']
         quota = UserQuota.objects.select_for_update().get(user=user)
         if quota.limit is not None and user.resources.count() >= quota.limit:
             raise PermissionDenied(f'Resources quota is exceeded. Current limit is {quota.limit}.')
