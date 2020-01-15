@@ -1,5 +1,6 @@
 from typing import Any, Type
 
+from django.db.models import ProtectedError
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status, mixins
@@ -7,7 +8,8 @@ from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import NOT, IsAuthenticated, SingleOperandHolder, AllowAny, IsAdminUser
 
 from rest_framework.request import Request
-from rest_framework.serializers import Serializer
+from rest_framework.response import Response
+from rest_framework.serializers import Serializer, ValidationError
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .models import User
@@ -47,6 +49,12 @@ class UserViewSet(ModelViewSet):
 
     def get_serializer_class(self) -> Type[Serializer]:
         return self.action2serializer_class.get(self.action, super().get_serializer_class())
+
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            raise ValidationError({'detail': 'Cannot delete the user because other objects is referenced to it.'})
 
 
 class MeUserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
